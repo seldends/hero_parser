@@ -175,3 +175,5 @@ print(len(persons))
 pars(persons)
 
 
+mydb.commit()
+print(mycursor.rowcount, "record inserted.")
