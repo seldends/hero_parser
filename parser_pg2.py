@@ -46,11 +46,8 @@ def make_persons(directory):
                         persons_data.append(line)
                     else:
                         persons_data[-1] = persons_data[-1]+line
-            
-            for person in persons_data:
-                result = re.split(r',', person)
-                persons.append(result)
-    return persons
+                          
+    return persons_data
 
 
 # Т.К. ФИО и ДР почти всегда находятся в 1м элементе списка, то искать их следует там
@@ -168,7 +165,12 @@ def pars(persons):
 
 folder = r'C:\projects\parsing\html'
 make_persons(folder)
+
+for person in persons_data:
+    result = re.split(r',', person)
+    persons.append(result)
 print(len(persons_data))
+print(len(persons))
 pars(persons)
 
 
