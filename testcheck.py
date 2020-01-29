@@ -16,7 +16,7 @@ date_died_of_wounds_pattern = r"(?<=умер от ран )\d\d.\d\d.\d\d"
 date_of_loss_pattern = r"(?<=пропал без вести )\d\d.\d\d.\d\d"
 place_of_residence_pattern = r"проживал после войны"
 place_of_conscription_pattern = r"РВК" 
-rank_pattern = r"ст-на|с-т|ряд.|ст. л-т|гв. с-т|с-т|мл. л-т"
+military_rank_pattern = r"ст-на|с-т|ряд.|ст. л-т|гв. с-т|с-т|мл. л-т"
 
 
 
@@ -37,7 +37,7 @@ def check_list(pattern, test):
 def check_one(pattern, test):
     result = re.findall(pattern, test)
     if result:
-        return result
+        return result[0]
     return None
 
 
@@ -55,54 +55,46 @@ def check_data_next(pattern, test):
             return test[test.index(t)+1]
     return None
 
+
 for person in persons:
-    for p in person:
-        p = re.sub(r"^\s", "", p)
-        print(p)
 
+    fio = check_fio(fio_pattern, person[0])
 
-print (persons) 
+    surname = fio[0].capitalize()
+    name = fio[1].capitalize()
+    patronymic = fio[2].capitalize()
+    
+    date_of_birth = check_one(date_of_birth_pattern, person[0])
+    print(type(date_of_birth))
+    place_of_conscription = check_data(place_of_conscription_pattern, person[1:])
 
-# for person in persons:
+    military_rank = check_data(military_rank_pattern, person[1:])
 
-#     fio = check_fio(fio_pattern, person[0])
+    date_of_death = check_list(date_of_death_pattern, person[1:])
+    date_of_loss = check_list(date_of_loss_pattern, person[1:])
+    date_of_pass_away = check_list(date_of_pass_away_pattern, person[1:])
+    date_died_of_wounds = check_list(date_died_of_wounds_pattern, person[1:])
 
-#     surname = fio[0].capitalize()
-#     name = fio[1].capitalize()
-#     patronymic = fio[2].capitalize()
-
-#     date_of_birth = check_one(date_of_birth_pattern, person[0])
-
-#     place_of_conscription = check_data(place_of_conscription_pattern, person[1:])
-
-#     rank = check_data(rank_pattern, person[1:])
-
-#     date_of_death = check_list(date_of_death_pattern, person[1:])
-#     date_of_loss = check_list(date_of_loss_pattern, person[1:])
-#     date_of_pass_away = check_list(date_of_pass_away_pattern, person[1:])
-#     date_died_of_wounds = check_list(date_died_of_wounds_pattern, person[1:])
-
-
-#     place_of_residence = check_data(place_of_residence_pattern, person[1:])
-#     place_of_death = check_data_next(date_of_death_pattern, person[1:])
-#     place_of_pass_away = check_data_next(date_of_pass_away_pattern, person[1:])
-#     place_died_of_wounds = check_data_next(date_died_of_wounds_pattern, person[1:])
+    place_of_residence = check_data(place_of_residence_pattern, person[1:])
+    place_of_death = check_data_next(date_of_death_pattern, person[1:])
+    place_of_pass_away = check_data_next(date_of_pass_away_pattern, person[1:])
+    place_died_of_wounds = check_data_next(date_died_of_wounds_pattern, person[1:])
 
 
     
-#     print("fio", fio)
-#     print("surname", surname)
-#     print("name", name)
-#     print("patronymic", patronymic)
-#     print("date_of_birth ",date_of_birth)
-#     print("date_of_death ",date_of_death)
-#     print("date_of_loss ",date_of_loss)
-#     print("date_of_pass_away ",date_of_pass_away)
-#     print("date_died_of_wounds ",date_died_of_wounds)
-#     print("place_of_residence ",place_of_residence)
-#     print("rank", rank)
-#     print("place_of_death", place_of_death)
-#     print("place_of_conscription", place_of_conscription)
+    # print("fio", fio)
+    # print("surname", surname)
+    # print("name", name)
+    # print("patronymic", patronymic)
+    # print("date_of_birth ",date_of_birth)
+    # print("date_of_death ",date_of_death)
+    # print("date_of_loss ",date_of_loss)
+    # print("date_of_pass_away ",date_of_pass_away)
+    # print("date_died_of_wounds ",date_died_of_wounds)
+    # print("place_of_residence ",place_of_residence)
+    # print("military_rank", military_rank)
+    # print("place_of_death", place_of_death)
+    # print("place_of_conscription", place_of_conscription)
     
     
 
