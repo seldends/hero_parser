@@ -22,15 +22,16 @@ persons_data = []
 fio_pattern = r"[А-ЯЁ]* \([А-ЯЁ]*\)|[А-ЯЁ]*"
 date_of_birth_pattern = r"\d{4}(?= г.р|)"
 
-died_in_battle_pattern = r"(?<=погиб\s)\d\d.\d\d.\d\d|(?<=погибла\s)\d\d.\d\d.\d\d"
-pass_away_pattern = r"(?<=умер\s)\d\d.\d\d.\d\d|(?<=умерла\s)\d\d.\d\d.\d\d"
-died_of_wounds_pattern = r"(?<=умер от ран\s)\d\d.\d\d.\d\d|(?<=умер от ран\s)\d\d.\d\d.\d\d"
-loss_pattern = r"(?<=пропал без вести\s)\d\d.\d\d.\d\d|(?<=пропала без вести\s)\d\d.\d\d.\d\d"
+died_in_battle_pattern = r"(?<=погиб\s)\d{2}.\d{2}.\d{2,4}|(?<=погибла\s)\d{2}.\d{2}.\d{2,4}"
+pass_away_pattern = r"(?<=умер\s)\d{2}.\d{2}.\d{2,4}|(?<=умерла\s)\d{2}.\d{2}.\d{2,4}"
+died_of_wounds_pattern = r"(?<=умер\sот\sран\s)\d{2}.\d{2}.\d{2,4}|(?<=умер\sот\sран\s)\d{2}.\d{2}.\d{2,4}"
+loss_pattern = r"(?<=пропал\sбез\sвести\s)\d{2}.\d{2}.\d{2,4}|(?<=пропала\sбез\sвести\s)\d{2}.\d{2}.\d{2,4}"
+died_in_captivity_pattern = r"(?<=погиб\sв\sплену\s)\d{2}.\d{2}.\d{2,4}|(?<=погибла\sв\sплену\s)\d{2}.\d{2}.\d{2,4}"
 
-residence_pattern = r"проживал после войны|проживала после войны"
+residence_pattern = r"проживал\sпосле\sвойны|проживала\sпосле\sвойны"
 place_of_conscription_pattern = r"РВК|ГВК|р-н|с\.|г\.(\s|)[А-ЯЁ]" #тест
 
-location_pattern = r"р-н|с\.|г\.(\s|)[А-ЯЁ]"
+location_pattern = r"р-н|с\.|г\.(\s|)[А-ЯЁ]|не\sустановлено"
 military_rank_pattern = r"ст-на|с-т|ряд\.|ст\. л-т|гв\. с-т|с-т|мл\. л-т|ефр"
 
 
@@ -99,6 +100,7 @@ def check_data(pattern, data):
             return element.strip()
     return None
 
+
 # Придумать как сделать проверку
 # 1. Проверку между датой и званием не сделать, т.к. может не быть даты и звания
 def check_conscription(pattern, data):
@@ -144,12 +146,12 @@ def pars(persons):
         date_of_death = None
         location = None
 
-
         died_in_battle = False
         loss = False
         pass_away = False
         died_of_wounds = False
         residence = False
+        died_in_captivity = False
 
         is_valid = False
 
@@ -165,16 +167,55 @@ def pars(persons):
         except IndexError:
             patronymic = None
 
-        date_of_birth = check_one(date_of_birth_pattern, person[0])
-        place_of_conscription = check_conscription(place_of_conscription_pattern, person[1:3])
-        military_rank = check_data(military_rank_pattern, person[1:])
+        date_of_birth = check_one(
+            date_of_birth_pattern,
+            person[0]
+            )
 
-        date_died_in_battle, place_died_in_battle, died_in_battle = check_date(died_in_battle_pattern, location_pattern, person[1:])
-        date_of_loss, place_of_loss, loss = check_date(loss_pattern, location_pattern, person[1:])
-        date_of_pass_away, place_of_pass_away, pass_away = check_date(pass_away_pattern, location_pattern, person[1:])
-        date_died_of_wounds, place_died_of_wounds, died_of_wounds = check_date(died_of_wounds_pattern, location_pattern, person[1:])
-        place_of_residence, residence = check_residence(residence_pattern, person[1:])
+        place_of_conscription = check_conscription(
+            place_of_conscription_pattern,
+            person[1:3]
+            )
 
+        military_rank = check_data(
+            military_rank_pattern,
+            person[1:]
+            )
+
+        date_died_in_battle, place_died_in_battle, died_in_battle = check_date(
+            died_in_battle_pattern,
+            location_pattern,
+            person[1:]
+            )
+
+        date_of_loss, place_of_loss, loss = check_date(
+            loss_pattern,
+            location_pattern,
+            person[1:]
+            )
+
+        date_of_pass_away, place_of_pass_away, pass_away = check_date(
+            pass_away_pattern,
+            location_pattern,
+            person[1:]
+            )
+
+        date_died_of_wounds, place_died_of_wounds, died_of_wounds = check_date(
+            died_of_wounds_pattern,
+            location_pattern,
+            person[1:]
+            )
+
+        date_died_in_captivity, place_died_in_captivity, died_in_captivity = check_date(
+            died_in_captivity_pattern,
+            location_pattern,
+            person[1:]
+            )
+
+        place_of_residence, residence = check_residence(
+            residence_pattern,
+            person[1:]
+            )
 
         if died_in_battle:
             date_of_death = date_died_in_battle
@@ -188,25 +229,28 @@ def pars(persons):
         elif died_of_wounds:
             date_of_death = date_died_of_wounds
             location = place_died_of_wounds
+        elif died_in_captivity:
+            date_of_death = date_died_in_captivity
+            location = place_died_in_captivity
         elif residence:
             location = place_of_residence
 
-        sql = """INSERT INTO persons5
+        sql = """INSERT INTO persons7
         (surname, name, patronymic,
         date_of_birth, place_of_conscription, military_rank,
         date_of_death, location,
         died_in_battle, loss, pass_away,
-        died_of_wounds, residence,
+        died_of_wounds, residence, died_in_captivity,
         is_valid)
         VALUES
-        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
         val = (
             surname, name, patronymic,
             date_of_birth, place_of_conscription, military_rank,
             date_of_death, location,
             died_in_battle, loss, pass_away,
-            died_of_wounds, residence,
+            died_of_wounds, residence, died_in_captivity,
             is_valid
             )
 

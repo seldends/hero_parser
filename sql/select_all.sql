@@ -1,1 +1,1 @@
-SELECT * FROM `mydatabase`.`persons4`;
+SELECT * FROM `mydatabase`.`persons7`;
