@@ -6,10 +6,10 @@ import psycopg2
 from settings import PG_PASSWORD
 
 con = psycopg2.connect(
-        database="postgres", 
-        user="postgres", 
-        password=PG_PASSWORD, 
-        host="127.0.0.1", 
+        database="postgres",
+        user="postgres",
+        password=PG_PASSWORD,
+        host="127.0.0.1",
         port="5432"
 )
 cur = con.cursor()
@@ -55,7 +55,7 @@ def make_persons(directory):
 
 # Проверяет в элементе, и возвращает список ФИО
 def check_fio(pattern, data):
-    result = re.findall(pattern, data)  
+    result = re.findall(pattern, data)
     if result:
         result = list(filter(None, result))
         return result
@@ -83,9 +83,9 @@ def check_list(pattern, data):
     return None
 
 
-
 # Проверяет в списке, и возвращает элемент
 # Если находит часть из звания - то возращает весь элемент
+
 
 def check_data(pattern, data):
     for element in data:
@@ -95,7 +95,7 @@ def check_data(pattern, data):
     return None
 
 
-# Проверяет в списке, и возвращает следующий элемент 
+# Проверяет в списке, и возвращает следующий элемент
 # Элемен "место смерти" идет после "даты смерти"
 
 def check_data_next(pattern, data):
@@ -123,7 +123,7 @@ def pars(persons):
             patronymic = fio[2].capitalize()
         except IndexError:
             patronymic = None
-        
+
         date_of_birth = check_one(date_of_birth_pattern, person[0])
 
         place_of_conscription = check_data(place_of_conscription_pattern, person[1:])
@@ -142,26 +142,24 @@ def pars(persons):
         place_of_pass_away = check_data_next(date_of_pass_away_pattern, person[1:])
         place_died_of_wounds = check_data_next(date_died_of_wounds_pattern, person[1:])
 
-
         sql = """INSERT INTO persons6
-        (surname, name, patronymic, 
-        date_of_birth, place_of_conscription, military_rank, 
-        date_of_death, date_of_loss, date_of_pass_away, date_died_of_wounds, 
-        place_of_residence, place_of_death, place_of_pass_away, place_died_of_wounds) 
-        VALUES 
+        (surname, name, patronymic,
+        date_of_birth, place_of_conscription, military_rank,
+        date_of_death, date_of_loss, date_of_pass_away, date_died_of_wounds,
+        place_of_residence, place_of_death, place_of_pass_away, place_died_of_wounds)
+        VALUES
         (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
         val = (
-            surname, name, patronymic, 
-            date_of_birth, place_of_conscription, military_rank, 
-            date_of_death, date_of_loss, date_of_pass_away, date_died_of_wounds, 
+            surname, name, patronymic,
+            date_of_birth, place_of_conscription, military_rank,
+            date_of_death, date_of_loss, date_of_pass_away, date_died_of_wounds,
             place_of_residence, place_of_death, place_of_pass_away, place_died_of_wounds
             )
 
         cur.execute(sql, val)
-        #print("save {}".format(person))
+        # print("save {}".format(person))
 
-####
 
 folder = r'C:\projects\parsing\html'
 make_persons(folder)
@@ -174,6 +172,6 @@ print(len(persons))
 pars(persons)
 
 
-con.commit()      
+con.commit()
 con.close()
 cur.close()

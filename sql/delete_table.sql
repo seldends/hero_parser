@@ -1,0 +1,1 @@
+DELETE FROM `mydatabase`.`persons4`;
