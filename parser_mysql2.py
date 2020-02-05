@@ -27,15 +27,11 @@ pass_away_pattern = r"(?<=умер\s)\d\d.\d\d.\d\d|(?<=умерла\s)\d\d.\d\d
 died_of_wounds_pattern = r"(?<=умер от ран\s)\d\d.\d\d.\d\d|(?<=умер от ран\s)\d\d.\d\d.\d\d"
 loss_pattern = r"(?<=пропал без вести\s)\d\d.\d\d.\d\d|(?<=пропала без вести\s)\d\d.\d\d.\d\d"
 
-# died_in_battle_pattern = r"((?<=погиб )|(?<=погибла ))\d\d.\d\d.\d\d"
-# pass_away_pattern = r"((?<=умер\s)|(?<=умерла\s))\d\d.\d\d.\d\d"
-# died_of_wounds_pattern = r"((?<=умер от ран\s)|(?<=умер от ран\s))\d\d.\d\d.\d\d"
-# loss_pattern = r"((?<=пропал без вести\s)|(?<=пропала без вести\s))\d\d.\d\d.\d\d"
-
 residence_pattern = r"проживал после войны|проживала после войны"
-place_of_conscription_pattern = r"РВК" #тест
+place_of_conscription_pattern = r"РВК|ГВК|р-н|с\.|г\.(\s|)[А-ЯЁ]" #тест
 
-military_rank_pattern = r"ст-на|с-т|ряд.|ст. л-т|гв. с-т|с-т|мл. л-т|ефр"
+location_pattern = r"р-н|с\.|г\.(\s|)[А-ЯЁ]"
+military_rank_pattern = r"ст-на|с-т|ряд\.|ст\. л-т|гв\. с-т|с-т|мл\. л-т|ефр"
 
 
 # Придумать как можно лучше
@@ -103,6 +99,15 @@ def check_data(pattern, data):
             return element.strip()
     return None
 
+# Придумать как сделать проверку
+# 1. Проверку между датой и званием не сделать, т.к. может не быть даты и звания
+def check_conscription(pattern, data):
+    for element in data:
+        result = re.findall(pattern, element)
+        if result:
+            return element.strip()
+    return None
+
 
 def check_residence(pattern, data):
     for element in data:
@@ -111,16 +116,18 @@ def check_residence(pattern, data):
             r = element.rfind("после войны")
             return element[r+11:].strip(), True
     return None, False
-# Проверяет в списке, и возвращает следующий элемент
+
+
+# Проверяет в списке, и возвращает дату смерти
 # Элемен "место смерти" идет после "даты смерти"
-
-
-def check_date(pattern_date, data):
+def check_date(pattern_date, pattern_location,  data):
     for element in data:
         result = re.findall(pattern_date, element)
         if result:
             try:
-                return result[0], data[data.index(element)+1].strip(), True
+                test = re.findall(pattern_location, data[data.index(element)+1])
+                if test:
+                    return result[0], data[data.index(element)+1].strip(), True
             except IndexError:
                 return result[0], None, True
     return None, None, False
@@ -129,8 +136,14 @@ def check_date(pattern_date, data):
 def pars(persons):
     for person in persons:
 
+        name = None
+        patronymic = None
+        date_of_birth = None
+        place_of_conscription = None
+        military_rank = None
         date_of_death = None
         location = None
+
 
         died_in_battle = False
         loss = False
@@ -153,13 +166,13 @@ def pars(persons):
             patronymic = None
 
         date_of_birth = check_one(date_of_birth_pattern, person[0])
-        place_of_conscription = check_data(place_of_conscription_pattern, person[1:])
+        place_of_conscription = check_conscription(place_of_conscription_pattern, person[1:3])
         military_rank = check_data(military_rank_pattern, person[1:])
 
-        date_died_in_battle, place_died_in_battle, died_in_battle = check_date(died_in_battle_pattern, person[1:])
-        date_of_loss, place_of_loss, loss = check_date(loss_pattern, person[1:])
-        date_of_pass_away, place_of_pass_away, pass_away = check_date(pass_away_pattern, person[1:])
-        date_died_of_wounds, place_died_of_wounds, died_of_wounds = check_date(died_of_wounds_pattern, person[1:])
+        date_died_in_battle, place_died_in_battle, died_in_battle = check_date(died_in_battle_pattern, location_pattern, person[1:])
+        date_of_loss, place_of_loss, loss = check_date(loss_pattern, location_pattern, person[1:])
+        date_of_pass_away, place_of_pass_away, pass_away = check_date(pass_away_pattern, location_pattern, person[1:])
+        date_died_of_wounds, place_died_of_wounds, died_of_wounds = check_date(died_of_wounds_pattern, location_pattern, person[1:])
         place_of_residence, residence = check_residence(residence_pattern, person[1:])
 
 
@@ -178,7 +191,7 @@ def pars(persons):
         elif residence:
             location = place_of_residence
 
-        sql = """INSERT INTO persons4
+        sql = """INSERT INTO persons5
         (surname, name, patronymic,
         date_of_birth, place_of_conscription, military_rank,
         date_of_death, location,
