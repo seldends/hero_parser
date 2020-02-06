@@ -1,1 +1,1 @@
-DELETE FROM `mydatabase`.`persons6`;
+DELETE FROM `mydatabase`.`persons`;

@@ -1,0 +1,1 @@
+SELECT * FROM `mydatabase`.`persons` WHERE military_rank = place_of_conscription;

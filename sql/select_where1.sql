@@ -1,1 +1,1 @@
-SELECT * FROM `mydatabase`.`persons6` WHERE date_of_death IS NULL AND residence=0;
+SELECT * FROM `mydatabase`.`persons` WHERE date_of_death IS NULL AND residence=0;

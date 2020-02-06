@@ -15,7 +15,7 @@ mycursor = mydb.cursor()
 # mycursor.execute("CREATE DATABASE mydatabase")
 
 mycursor.execute(
-"""CREATE TABLE persons7
+"""CREATE TABLE persons
 (id INT AUTO_INCREMENT PRIMARY KEY,
      surname VARCHAR(50) NOT NULL,
      name VARCHAR(50) NULL,
@@ -25,12 +25,7 @@ mycursor.execute(
      military_rank VARCHAR(255) NULL,
      date_of_death VARCHAR(50) NULL,
      location VARCHAR(255) NULL,
-     died_in_battle boolean,
-     loss boolean,
-     pass_away boolean,
-     died_of_wounds boolean,
-     residence boolean,
-     died_in_captivity boolean,
+     fate VARCHAR(50) NULL,
      is_valid boolean
 )
 """)

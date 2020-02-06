@@ -27,9 +27,11 @@ pass_away_pattern = r"(?<=умер\s)\d{2}.\d{2}.\d{2,4}|(?<=умерла\s)\d{2
 died_of_wounds_pattern = r"(?<=умер\sот\sран\s)\d{2}.\d{2}.\d{2,4}|(?<=умер\sот\sран\s)\d{2}.\d{2}.\d{2,4}"
 loss_pattern = r"(?<=пропал\sбез\sвести\s)\d{2}.\d{2}.\d{2,4}|(?<=пропала\sбез\sвести\s)\d{2}.\d{2}.\d{2,4}"
 died_in_captivity_pattern = r"(?<=погиб\sв\sплену\s)\d{2}.\d{2}.\d{2,4}|(?<=погибла\sв\sплену\s)\d{2}.\d{2}.\d{2,4}"
+released_from_captivity_pattern = r"(?<=попал\sв\sплен\s)\d{2}.\d{2}.\d{2,4}|(?<=попала\sв\sплен\s)\d{2}.\d{2}.\d{2,4}"
 
 residence_pattern = r"проживал\sпосле\sвойны|проживала\sпосле\sвойны"
-place_of_conscription_pattern = r"РВК|ГВК|р-н|с\.|г\.(\s|)[А-ЯЁ]" #тест
+
+place_of_conscription_pattern = r"РВК|ГВК|р-н|с\.|г\.(\s|)[А-ЯЁ]"   # подумать
 
 location_pattern = r"р-н|с\.|г\.(\s|)[А-ЯЁ]|не\sустановлено"
 military_rank_pattern = r"ст-на|с-т|ряд\.|ст\. л-т|гв\. с-т|с-т|мл\. л-т|ефр"
@@ -122,7 +124,7 @@ def check_residence(pattern, data):
 
 # Проверяет в списке, и возвращает дату смерти
 # Элемен "место смерти" идет после "даты смерти"
-def check_date(pattern_date, pattern_location,  data):
+def check_date(pattern_date, pattern_location, data):
     for element in data:
         result = re.findall(pattern_date, element)
         if result:
@@ -132,6 +134,14 @@ def check_date(pattern_date, pattern_location,  data):
                     return result[0], data[data.index(element)+1].strip(), True
             except IndexError:
                 return result[0], None, True
+    return None, None, False
+
+
+def check_released(pattern_date, data):
+    for element in data:
+        result = re.findall(pattern_date, element)
+        if result:
+            return result[0], None, True
     return None, None, False
 
 
@@ -145,6 +155,7 @@ def pars(persons):
         military_rank = None
         date_of_death = None
         location = None
+        fate = None
 
         died_in_battle = False
         loss = False
@@ -152,6 +163,7 @@ def pars(persons):
         died_of_wounds = False
         residence = False
         died_in_captivity = False
+        released_from_captivity = False
 
         is_valid = False
 
@@ -212,45 +224,63 @@ def pars(persons):
             person[1:]
             )
 
+        date_released_from_captivity, place_released_from_captivity, released_from_captivity = check_released(
+            released_from_captivity_pattern,
+            person[1:]
+            )
+
         place_of_residence, residence = check_residence(
             residence_pattern,
             person[1:]
             )
 
+        if released_from_captivity:
+            print("True")
+
         if died_in_battle:
             date_of_death = date_died_in_battle
             location = place_died_in_battle
+            fate = "погиб"
         elif loss:
             date_of_death = date_of_loss
             location = place_of_loss
+            fate = "пропал без вести"
         elif pass_away:
             date_of_death = date_of_pass_away
             location = place_of_pass_away
+            fate = "умер"
         elif died_of_wounds:
             date_of_death = date_died_of_wounds
             location = place_died_of_wounds
+            fate = "умер от ран"
         elif died_in_captivity:
             date_of_death = date_died_in_captivity
             location = place_died_in_captivity
+            fate = "погиб в плену"
+        elif released_from_captivity:
+            date_of_death = date_released_from_captivity
+            location = place_released_from_captivity
+            fate = "попал в плен, освобожден"
         elif residence:
             location = place_of_residence
+            fate = "проживал после войны"
+        else:
+            fate = "не указано"
 
-        sql = """INSERT INTO persons7
+        sql = """INSERT INTO persons
         (surname, name, patronymic,
         date_of_birth, place_of_conscription, military_rank,
         date_of_death, location,
-        died_in_battle, loss, pass_away,
-        died_of_wounds, residence, died_in_captivity,
+        fate,
         is_valid)
         VALUES
-        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
         val = (
             surname, name, patronymic,
             date_of_birth, place_of_conscription, military_rank,
             date_of_death, location,
-            died_in_battle, loss, pass_away,
-            died_of_wounds, residence, died_in_captivity,
+            fate,
             is_valid
             )
 

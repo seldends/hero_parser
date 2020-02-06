@@ -1,1 +1,1 @@
-SELECT count(*) FROM `mydatabase`.`persons6` WHERE  died_in_battle + loss + pass_away + died_of_wounds + residence + died_in_captivity < 1;
+SELECT count(*) FROM `mydatabase`.`persons` WHERE  died_in_battle + loss + pass_away + died_of_wounds + residence + died_in_captivity < 1;
