@@ -1,1 +1,1 @@
-DELETE FROM `mydatabase`.`persons`;
+DELETE FROM `mydatabase`.`perxlsx`;

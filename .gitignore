@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 .vscode/
+ОбщееБВГДЕЖЗ.xlsx
+ОбщееИНОПК.xlsx
+ОбщееР.xlsx
+test.py
 # C extensions
 *.so
 settings.py

@@ -1,1 +1,1 @@
-DROP TABLE `persons`;
+DROP TABLE `mydatabase`.`persons3`;

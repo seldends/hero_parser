@@ -15,7 +15,6 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-
 persons = []
 persons_data = []
 
@@ -25,7 +24,6 @@ place_of_conscription_pattern = r"РВК|ГВК|р-н|с\.|г\.(\s|)[А-ЯЁ]"  
 location_pattern = r"р-н|с\.|г\.(\s|)[А-ЯЁ]|не\sустановлено"
 military_rank_pattern = r"ст-на|с-т|ряд\.|ст\. л-т|гв\. с-т|с-т|мл\. л-т|ефр"
 
-
 died_in_battle_pattern = r"(?<=погиб\s)\d{2}\,{0,1}\.{0,1}\d{2}\,{0,1}\.{0,1}\d{2,4}|(?<=погибла\s)\d{2}\,{0,1}\.{0,1}\d{2}\,{0,1}\.{0,1}\d{2,4}"
 pass_away_pattern = r"(?<=умер\s)\d{2}\,{0,1}\.{0,1}\d{2}\,{0,1}\.{0,1}\d{2,4}|(?<=умерла\s)\d{2}\,{0,1}\.{0,1}\d{2}\,{0,1}\.{0,1}\d{2,4}"
 died_of_wounds_pattern = r"(?<=умер\sот\sран\s)\d{2}\,{0,1}\.{0,1}\d{2}\,{0,1}\.{0,1}\d{2,4}|(?<=умер\sот\sран\s)\d{2}\,{0,1}\.{0,1}\d{2}\,{0,1}\.{0,1}\d{2,4}"
@@ -34,10 +32,8 @@ died_in_captivity_pattern = r"(?<=погиб\sв\sплену\s)\d{2}\,{0,1}\.{0,
 released_from_captivity_pattern = r"(?<=попал\sв\sплен\s)\d{2}\,{0,1}\.{0,1}\d{2}\,{0,1}\.{0,1}\d{2,4}|(?<=попала\sв\sплен\s)\d{2}\,{0,1}\.{0,1}\d{2}\,{0,1}\.{0,1}\d{2,4}"
 residence_pattern = r"проживал\sпосле\sвойны|проживала\sпосле\sвойны"
 
-#fate = "не указано"
-
 fate_dict = {
-    died_in_battle_pattern: "погиб",
+    died_in_battle_pattern: 'погиб',
     loss_pattern: "пропал без вести",
     pass_away_pattern: "умер",
     died_of_wounds_pattern: "умер от ран",
@@ -52,7 +48,7 @@ def make_persons(directory):
     for root, dirs, filenames in os.walk(directory):
         for f in filenames:
             html_file = open(os.path.join(root, f), 'r', encoding='cp1251')
-            print(f)
+            #print(f)
             soup = BeautifulSoup(html_file.read(), 'html.parser')
             tags = soup.p.text
             data = tags.split("\n")
@@ -69,15 +65,11 @@ def make_persons(directory):
     return persons_data
 
 
-# Т.К. ФИО и ДР почти всегда находятся в 1м элементе списка, то искать их следует там
-# Остальные данные могут быть в произвольном элементе списка, поэтому поиск идет по всем элементам, кроме 1го
-
 # Проверяет в элементе, и возвращает ФИО
-def check_fio(pattern, data):
-    fio = re.findall(pattern, data)
+def check_fio(data):
+    fio = re.findall(fio_pattern, data)
     if fio:
         fio = list(filter(None, fio))
-
         surname = fio[0].capitalize()
         try:
             name = fio[1].capitalize()
@@ -87,53 +79,38 @@ def check_fio(pattern, data):
             patronymic = fio[2].capitalize()
         except IndexError:
             patronymic = None
-
         return surname, name, patronymic
     return None, None, None
 
 
 # Проверяет в элементе, и возвращает результат
-# "дата рождения" находится в 1м элементе списка
-def check_one(pattern, data):
-    result = re.findall(pattern, data)
+def check_dbirth(data):
+    result = re.findall(date_of_birth_pattern, data)
     if result:
         return result[0]
     return None
 
 
-# Проверяет в списке, и возвращает результат
-# Среди всех  элементов ищутся даты смерти
-def check_list(pattern, data):
-    for element in data:
-        result = re.findall(pattern, element)
-        if result:
-            return result[0]
-    return None
-
-
 # Проверяет в списке, и возвращает элемент
-# Если находит часть из звания - то возращает весь элемент
-def check_data(pattern, data):
+def check_rank(data):
     for element in data:
-        result = re.findall(pattern, element)
+        result = re.findall(military_rank_pattern, element)
         if result:
             return element.strip()
     return None
 
 
 # Придумать как сделать проверку
-# 1. Проверку между датой и званием не сделать, т.к. может не быть даты и звания
-def check_conscription(pattern, data):
+def check_conscription(data):
     for element in data:
-        result = re.findall(pattern, element)
+        result = re.findall(place_of_conscription_pattern, element)
         if result:
             return element.strip()
     return None
 
 
-# Проверяет в списке, и возвращает дату смерти
-# Элемен "место смерти" идет после "даты смерти"
-def check_date(data):
+# Проверяет в списке, и возвращает дату, место, судьбу
+def check_fate(data):
     for element in data:
         for pattern, value_fate in fate_dict.items():
             result = re.findall(pattern, element)
@@ -144,9 +121,10 @@ def check_date(data):
                     r = element.rfind("после войны")
                     return None, element[r+11:], fate_dict[pattern]
                 try:
-                    test = re.findall(location_pattern, data[data.index(element)+1])
+                    next_element = data[data.index(element)+1]
+                    test = re.findall(location_pattern, next_element)
                     if test:
-                        return result[0], data[data.index(element)+1].strip(), fate_dict[pattern]
+                        return result[0], next_element.strip(), fate_dict[pattern]
                 except IndexError:
                     return result[0], None, fate_dict[pattern]
     return None, None, "не указано"
@@ -154,35 +132,17 @@ def check_date(data):
 
 def pars(persons):
     for person in persons:
-
-        name = None
-        patronymic = None
-        date_of_birth = None
-        place_of_conscription = None
-        military_rank = None
-        date_of_death = None
-        location = None
-        fate = None
-
+        name, patronymic, date_of_birth, date_of_death, location, fate = (None,)*6
+        place_of_conscription, military_rank = (None,)*2
         is_valid = False
 
-        surname, name, patronymic = check_fio(fio_pattern, person[0])
+        surname, name, patronymic = check_fio(person[0])
+        date_of_birth = check_dbirth(person[0])
+        place_of_conscription = check_conscription(person[1:3])
+        military_rank = check_rank(person[1:])
+        date_of_death, location, fate = check_fate(person[1:])
 
-        date_of_birth = check_one(
-            date_of_birth_pattern, person[0]
-            )
-
-        place_of_conscription = check_conscription(
-            place_of_conscription_pattern, person[1:3]
-            )
-
-        military_rank = check_data(
-            military_rank_pattern, person[1:]
-            )
-
-        date_of_death, location, fate = check_date(person[1:])
-
-        sql = """INSERT INTO persons3
+        sql = """INSERT INTO persons
         (surname, name, patronymic,
         date_of_birth, place_of_conscription, military_rank,
         date_of_death, location, fate, is_valid)
@@ -206,7 +166,7 @@ for person in persons_data:
     persons.append(result)
 print(len(persons_data))
 print(len(persons))
-pars(persons)
 
 mydb.commit()
-print(mycursor.rowcount, "record inserted.")
+print(mycursor.rowcount, "Записи сохранены")
+pars(persons)
