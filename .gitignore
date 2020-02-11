@@ -1,12 +1,16 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
 .vscode/
 ОбщееБВГДЕЖЗ.xlsx
 ОбщееИНОПК.xlsx
 ОбщееР.xlsx
+evac.xlsx
 test.py
+xlsx/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
 # C extensions
 *.so
 settings.py

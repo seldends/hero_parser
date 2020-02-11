@@ -13,19 +13,12 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-#df = pd.read_excel('ОбщееБВГДЕЖЗ.xlsx')
-#df = pd.read_excel('ОбщееИНОПК.xlsx')
+# df = pd.read_excel('ОбщееБВГДЕЖЗ.xlsx')
+# df = pd.read_excel('ОбщееИНОПК.xlsx')
 df = pd.read_excel('ОбщееР.xlsx')
 df = df.where((pd.notnull(df)), None)
 
 date_of_birth_pattern = r"\d{4}|\d{4}\s\(d{4}\)"
-
-
-def check_dbirth(data):
-    result = re.findall(date_of_birth_pattern, data)
-    if result:
-        return result[0]
-    return None
 
 
 def pars(df):

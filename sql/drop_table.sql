@@ -1,1 +1,1 @@
-DROP TABLE `mydatabase`.`persons3`;
+DROP TABLE `mydatabase`.`evac`;
