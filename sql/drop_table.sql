@@ -1,1 +1,1 @@
-DROP TABLE `mydatabase`.`evac`;
+DROP TABLE `mydatabase`.`perxlsx`;

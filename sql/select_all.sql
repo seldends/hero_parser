@@ -1,1 +1,1 @@
-SELECT * FROM `mydatabase`.`persons`;
+SELECT * FROM `mydatabase`.`perxlsx`;

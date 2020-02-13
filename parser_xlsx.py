@@ -13,9 +13,9 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-# df = pd.read_excel('ОбщееБВГДЕЖЗ.xlsx')
-# df = pd.read_excel('ОбщееИНОПК.xlsx')
-df = pd.read_excel('ОбщееР.xlsx')
+#df = pd.read_excel('xlsx/part1.xlsx')
+#df = pd.read_excel('xlsx/part2.xlsx')
+df = pd.read_excel('xlsx/part3.xlsx')
 df = df.where((pd.notnull(df)), None)
 
 date_of_birth_pattern = r"\d{4}|\d{4}\s\(d{4}\)"

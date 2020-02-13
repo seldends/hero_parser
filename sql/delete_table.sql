@@ -1,1 +1,1 @@
-DELETE FROM `mydatabase`.`evac`;
+DELETE FROM `mydatabase`.`perxlsx`;
