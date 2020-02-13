@@ -48,7 +48,7 @@ def make_persons(directory):
     for root, dirs, filenames in os.walk(directory):
         for f in filenames:
             html_file = open(os.path.join(root, f), 'r', encoding='cp1251')
-            #print(f)
+            print(f)
             soup = BeautifulSoup(html_file.read(), 'html.parser')
             tags = soup.p.text
             data = tags.split("\n")
@@ -96,8 +96,9 @@ def check_rank(data):
     for element in data:
         result = re.findall(military_rank_pattern, element)
         if result:
-            return element.strip()
-    return None
+            unit = re.sub(military_rank_pattern, "", element.strip())
+            return result[0], unit
+    return None, None
 
 
 # Придумать как сделать проверку
@@ -133,32 +134,32 @@ def check_fate(data):
 def pars(persons):
     for person in persons:
         name, patronymic, date_of_birth, date_of_death, location, fate = (None,)*6
-        place_of_conscription, military_rank = (None,)*2
+        place_of_conscription, military_rank, military_unit = (None,)*3
         is_valid = False
 
         surname, name, patronymic = check_fio(person[0])
         date_of_birth = check_dbirth(person[0])
         place_of_conscription = check_conscription(person[1:3])
-        military_rank = check_rank(person[1:])
+        military_rank, military_unit = check_rank(person[1:])
         date_of_death, location, fate = check_fate(person[1:])
 
-        sql = """INSERT INTO persons
+        sql = """INSERT INTO perxlsx
         (surname, name, patronymic,
-        date_of_birth, place_of_conscription, military_rank,
+        date_of_birth, place_of_conscription, military_rank, military_unit,
         date_of_death, location, fate, is_valid)
         VALUES
-        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
         val = (
             surname, name, patronymic,
-            date_of_birth, place_of_conscription, military_rank,
+            date_of_birth, place_of_conscription, military_rank, military_unit,
             date_of_death, location, fate, is_valid
             )
 
         mycursor.execute(sql, val)
 
 
-folder = r'/mnt/c/projects/parsing/html'
+folder = r'/mnt/c/projects/parsing/html/htest'
 make_persons(folder)
 
 for person in persons_data:
@@ -167,6 +168,7 @@ for person in persons_data:
 print(len(persons_data))
 print(len(persons))
 
+pars(persons)
+
 mydb.commit()
 print(mycursor.rowcount, "Записи сохранены")
-pars(persons)
