@@ -1,21 +1,12 @@
 import pandas as pd
-import mysql.connector
+from test import time_test
+from connect_mysql import clear_persons_table, save_persons, db_commit
 
-from settings import MYSQL_PASSWORD
-
-mydb = mysql.connector.connect(
-    host="127.0.0.1",
-    user="root",
-    passwd=MYSQL_PASSWORD,
-    database="mydatabase",
-    auth_plugin="mysql_native_password"
-)
-
-mycursor = mydb.cursor()
 
 date_of_birth_pattern = r"\d{4}|\d{4}\s\(d{4}\)"
 
 
+@time_test
 def pars(df):
     for i in df.index:
         name, patronymic, date_of_birth, date_of_death, location, fate = (None,)*6
@@ -37,29 +28,23 @@ def pars(df):
             else:
                 #print(date_of_birth)
                 is_valid = False
-        sql = """INSERT INTO perxlsx2
-        (surname, name, patronymic,
-        date_of_birth, place_of_conscription, military_rank, military_unit,
-        date_of_death, location, fate, is_valid)
-        VALUES
-        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
         val = (
             surname, name, patronymic,
             date_of_birth, place_of_conscription, military_rank, military_unit,
             date_of_death, location, fate, is_valid
             )
-
-        mycursor.execute(sql, val)
+        save_persons(val)
 
 
 xlsx = pd.ExcelFile('xlsx/По буквам.xlsx')
 
-for t in xlsx.sheet_names:
-    print(t)
-    df = xlsx.parse(t)
+clear_persons_table()
+
+for sheet in xlsx.sheet_names:
+    print(sheet)
+    df = xlsx.parse(sheet)
     df = df.where((pd.notnull(df)), None)
     pars(df)
 
-mydb.commit()
-print("Записи сохранены")
+db_commit()

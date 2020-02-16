@@ -1,18 +1,7 @@
 import pandas as pd
-import mysql.connector
 import numpy as np
+from connect_mysql import save_evac, db_commit
 
-from settings import MYSQL_PASSWORD
-
-mydb = mysql.connector.connect(
-    host="127.0.0.1",
-    user="root",
-    passwd=MYSQL_PASSWORD,
-    database="mydatabase",
-    auth_plugin="mysql_native_password"
-)
-
-mycursor = mydb.cursor()
 
 df = pd.read_excel('evac.xlsx')
 df = df.where((pd.notnull(df)), None)
@@ -29,7 +18,7 @@ def check(column, i):
     return data
 
 
-def pars(df):
+def pars_evac(df):
     for i in df.index:
         name = None
         patronymic = None
@@ -79,62 +68,20 @@ def pars(df):
         other_data = check('примечание', i)
 
         # #print(surname, name)
-        sql = """INSERT INTO evac
-        (   surname,
-            name,
-            patronymic,
-            gender,
-            date_of_birth,
-            before_evac_region,
-            before_evac_district,
-            before_evac_city,
-            nationality,
-            before_evac_place_of_work,
-            before_evac_post,
-            evac_district,
-            evac_city,
-            evac_with_company,
-            evac_place_of_work,
-            evac_post,
-            settled_adress,
-            search_archive,
-            search_fond,
-            search_inventory,
-            search_case,
-            search_list,
-            other_data)
-        VALUES
-        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
         val = (
-                surname,
-                name,
-                patronymic,
-                gender,
-                date_of_birth,
-                before_evac_region,
-                before_evac_district,
-                before_evac_city,
-                nationality,
-                before_evac_place_of_work,
-                before_evac_post,
-                evac_district,
-                evac_city,
-                evac_with_company,
-                evac_place_of_work,
-                evac_post,
-                settled_adress,
-                search_archive,
-                search_fond,
-                search_inventory,
-                search_case,
-                search_list,
-                other_data
+            surname, name, patronymic,
+            gender, date_of_birth, before_evac_region,
+            before_evac_district, before_evac_city, nationality,
+            before_evac_place_of_work, before_evac_post,
+            evac_district, evac_city, evac_with_company,
+            evac_place_of_work, evac_post, settled_adress,
+            search_archive, search_fond, search_inventory,
+            search_case, search_list, other_data
             )
 
-        mycursor.execute(sql, val)
+        save_evac(val)
 
 
-pars(df)
-mydb.commit()
-print(mycursor.rowcount, "Записи сохранены")
+pars_evac(df)
+db_commit()

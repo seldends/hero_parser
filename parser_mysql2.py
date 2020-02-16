@@ -1,19 +1,8 @@
 import re
 import os
-import mysql.connector
+from connect_mysql import save_persons, db_commit
 from bs4 import BeautifulSoup
 
-from settings import MYSQL_PASSWORD
-
-mydb = mysql.connector.connect(
-    host="127.0.0.1",
-    user="root",
-    passwd=MYSQL_PASSWORD,
-    database="mydatabase",
-    auth_plugin="mysql_native_password"
-)
-
-mycursor = mydb.cursor()
 
 persons = []
 persons_data = []
@@ -143,20 +132,13 @@ def pars(persons):
         military_rank, military_unit = check_rank(person[1:])
         date_of_death, location, fate = check_fate(person[1:])
 
-        sql = """INSERT INTO perxlsx
-        (surname, name, patronymic,
-        date_of_birth, place_of_conscription, military_rank, military_unit,
-        date_of_death, location, fate, is_valid)
-        VALUES
-        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-
         val = (
             surname, name, patronymic,
             date_of_birth, place_of_conscription, military_rank, military_unit,
             date_of_death, location, fate, is_valid
             )
 
-        mycursor.execute(sql, val)
+        save_persons(val)
 
 
 folder = r'/mnt/c/projects/parsing/html/htest'
@@ -170,5 +152,4 @@ print(len(persons))
 
 pars(persons)
 
-mydb.commit()
-print("Записи сохранены")
+db_commit()
