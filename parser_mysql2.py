@@ -171,4 +171,4 @@ print(len(persons))
 pars(persons)
 
 mydb.commit()
-print(mycursor.rowcount, "Записи сохранены")
+print("Записи сохранены")

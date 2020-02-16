@@ -13,11 +13,6 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-#df = pd.read_excel('xlsx/part1.xlsx')
-#df = pd.read_excel('xlsx/part2.xlsx')
-df = pd.read_excel('xlsx/part3.xlsx')
-df = df.where((pd.notnull(df)), None)
-
 date_of_birth_pattern = r"\d{4}|\d{4}\s\(d{4}\)"
 
 
@@ -31,7 +26,7 @@ def pars(df):
         patronymic = df['Отчество'][i]
         date_of_birth = df['Год рождения'][i]
         place_of_conscription = df['Место призыва'][i]
-        military_rank = df['звание'][i]
+        military_rank = df['Звание'][i]
         military_unit = df['Место службы'][i]
         date_of_death = df['Дата смерти'][i]
         location = df['Место проживания (захоронения)'][i]
@@ -40,9 +35,9 @@ def pars(df):
             if date_of_birth == ' ':
                 date_of_birth = None
             else:
-                print(date_of_birth)
+                #print(date_of_birth)
                 is_valid = False
-        sql = """INSERT INTO perxlsx
+        sql = """INSERT INTO perxlsx2
         (surname, name, patronymic,
         date_of_birth, place_of_conscription, military_rank, military_unit,
         date_of_death, location, fate, is_valid)
@@ -58,6 +53,13 @@ def pars(df):
         mycursor.execute(sql, val)
 
 
-pars(df)
+xlsx = pd.ExcelFile('xlsx/По буквам.xlsx')
+
+for t in xlsx.sheet_names:
+    print(t)
+    df = xlsx.parse(t)
+    df = df.where((pd.notnull(df)), None)
+    pars(df)
+
 mydb.commit()
-print(mycursor.rowcount, "Записи сохранены")
+print("Записи сохранены")

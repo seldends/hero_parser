@@ -1,1 +1,1 @@
-SELECT COUNT(*) FROM `mydatabase`.`perxlsx`;
+SELECT COUNT(*) FROM `mydatabase`.`perxlsx2`;
