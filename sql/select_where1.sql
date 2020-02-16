@@ -1,1 +1,0 @@
-SELECT * FROM `mydatabase`.`persons` WHERE date_of_death IS NULL AND residence=0;

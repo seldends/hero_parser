@@ -1,1 +1,0 @@
-SELECT count(*) FROM `mydatabase`.`persons`, `mydatabase`.`persons2` WHERE persons.fate = persons2.fate;
