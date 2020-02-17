@@ -7,7 +7,7 @@ test.py
 test2.py
 parser_xlsx2.py
 parser_dbf.py
-parser_pg2.py
+parser_pg.py
 connect_pg.py
 xlsx/
 sql/
