@@ -122,8 +122,8 @@ def check_fate(data):
 
 def pars(persons):
     for person in persons:
-        name, patronymic, date_of_birth, date_of_death, location, fate = (None,)*6
-        place_of_conscription, military_rank, military_unit = (None,)*3
+        name, patronymic, date_of_birth, date_of_death, location = (None,)*5
+        fate, place_of_conscription, military_rank, military_unit = (None,)*4
         is_valid = False
 
         surname, name, patronymic = check_fio(person[0])

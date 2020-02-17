@@ -6,8 +6,14 @@ evac.xlsx
 test.py
 test2.py
 parser_xlsx2.py
+parser_dbf.py
+parser_pg2.py
+connect_pg.py
 xlsx/
 sql/
+
+
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

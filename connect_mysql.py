@@ -20,53 +20,52 @@ mycursor = mydb.cursor()
 
 def create_persons_table():
     mycursor.execute(
-    """CREATE TABLE perxlsx
-    (id INT AUTO_INCREMENT PRIMARY KEY,
-        surname VARCHAR(50) NOT NULL,
-        name VARCHAR(50) NULL,
-        patronymic VARCHAR(50) NULL,
-        date_of_birth VARCHAR(50) NULL,
-        place_of_conscription VARCHAR(255) NULL,
-        military_rank VARCHAR(255) NULL,
-        military_unit VARCHAR(255) NULL,
-        date_of_death VARCHAR(50) NULL,
-        location VARCHAR(255) NULL,
-        fate VARCHAR(50) NULL,
-        is_valid boolean
-    )
-    """)
+        """CREATE TABLE perxlsx
+        (   id INT AUTO_INCREMENT PRIMARY KEY,
+            surname VARCHAR(50) NOT NULL,
+            name VARCHAR(50) NULL,
+            patronymic VARCHAR(50) NULL,
+            date_of_birth VARCHAR(50) NULL,
+            place_of_conscription VARCHAR(255) NULL,
+            military_rank VARCHAR(255) NULL,
+            military_unit VARCHAR(255) NULL,
+            date_of_death VARCHAR(50) NULL,
+            location VARCHAR(255) NULL,
+            fate VARCHAR(50) NULL,
+            is_valid boolean)
+        """)
     print("Table created successfully")
 
 
 def create_evac_table():
     mycursor.execute(
-    """CREATE TABLE evac
-    (id INT AUTO_INCREMENT PRIMARY KEY,
-        surname VARCHAR(50) NULL,
-        name VARCHAR(50) NULL,
-        patronymic VARCHAR(50) NULL,
-        gender VARCHAR(1) NULL,
-        date_of_birth VARCHAR(50) NULL,
-        before_evac_region VARCHAR(255) NULL,
-        before_evac_district VARCHAR(255) NULL,
-        before_evac_city VARCHAR(255) NULL,
-        nationality VARCHAR(255) NULL,
-        before_evac_place_of_work VARCHAR(255) NULL,
-        before_evac_post VARCHAR(255) NULL,
-        evac_district VARCHAR(255) NULL,
-        evac_city VARCHAR(255) NULL,
-        evac_with_company VARCHAR(255) NULL,
-        evac_place_of_work VARCHAR(255) NULL,
-        evac_post VARCHAR(255) NULL,
-        settled_adress VARCHAR(255) NULL,
-        search_archive VARCHAR(255) NULL,
-        search_fond integer NULL,
-        search_inventory integer NULL,
-        search_case integer NULL,
-        search_list integer NULL,
-        other_data VARCHAR(255) NULL
-    )
-    """)
+        """CREATE TABLE evac
+        (   id INT AUTO_INCREMENT PRIMARY KEY,
+            surname VARCHAR(50) NULL,
+            name VARCHAR(50) NULL,
+            patronymic VARCHAR(50) NULL,
+            gender VARCHAR(1) NULL,
+            date_of_birth VARCHAR(50) NULL,
+            before_evac_region VARCHAR(255) NULL,
+            before_evac_district VARCHAR(255) NULL,
+            before_evac_city VARCHAR(255) NULL,
+            nationality VARCHAR(255) NULL,
+            before_evac_place_of_work VARCHAR(255) NULL,
+            before_evac_post VARCHAR(255) NULL,
+            evac_district VARCHAR(255) NULL,
+            evac_city VARCHAR(255) NULL,
+            evac_with_company VARCHAR(255) NULL,
+            evac_place_of_work VARCHAR(255) NULL,
+            evac_post VARCHAR(255) NULL,
+            settled_adress VARCHAR(255) NULL,
+            search_archive VARCHAR(255) NULL,
+            search_fond integer NULL,
+            search_inventory integer NULL,
+            search_case integer NULL,
+            search_list integer NULL,
+            other_data VARCHAR(255) NULL
+        )
+        """)
 
     print("Table created successfully")
 
@@ -105,7 +104,8 @@ def save_evac(val):
             search_archive, search_fond, search_inventory,
             search_case, search_list, other_data)
         VALUES
-        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
     mycursor.execute(sql, val)
 
 
