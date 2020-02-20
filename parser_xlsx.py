@@ -1,6 +1,6 @@
 import pandas as pd
 from test import time_test
-from connect_mysql import clear_persons_table, save_persons, db_commit
+from connect_mysql import create_persons_table, clear_persons_table, save_persons, db_commit
 
 
 @time_test
@@ -12,7 +12,9 @@ def pars(df):
 
         surname = df['Фамилия'][i]
         name = df['Имя'][i]
-        patronymic = df['Отчество'][i]
+        patr = df['Отчество'][i]
+        patronymic = str(patr)
+        patronymic = patronymic.upper()
         date_of_birth = df['Год рождения'][i]
         place_of_conscription = df['Место призыва'][i]
         military_rank = df['Звание'][i]
@@ -49,4 +51,6 @@ def open_xlsx(path_xlsx):
 path_xlsx = 'xlsx/По буквам.xlsx'
 
 clear_persons_table()
+#create_persons_table()
+
 open_xlsx(path_xlsx)

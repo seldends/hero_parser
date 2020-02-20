@@ -22,7 +22,7 @@ def create_persons_table():
     mycursor.execute(
         """CREATE TABLE perxlsx
         (   id INT AUTO_INCREMENT PRIMARY KEY,
-            surname VARCHAR(50) NOT NULL,
+            surname VARCHAR(50) NULL,
             name VARCHAR(50) NULL,
             patronymic VARCHAR(50) NULL,
             date_of_birth VARCHAR(50) NULL,
@@ -31,9 +31,14 @@ def create_persons_table():
             military_unit VARCHAR(255) NULL,
             date_of_death VARCHAR(50) NULL,
             location VARCHAR(255) NULL,
-            fate VARCHAR(50) NULL,
+            fate VARCHAR(255) NULL,
             is_valid boolean)
         """)
+    print("Table created successfully")
+
+
+def drop_persons_table():
+    mycursor.execute("DROP TABLE `mydatabase`.`perxlsx`;")
     print("Table created successfully")
 
 
