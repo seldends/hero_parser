@@ -20,7 +20,7 @@ mycursor = mydb.cursor()
 
 def create_persons_table():
     mycursor.execute(
-        """CREATE TABLE perxlsx
+        """CREATE TABLE acme_hero_heroes2s
         (   id INT AUTO_INCREMENT PRIMARY KEY,
             surname VARCHAR(50) NULL,
             name VARCHAR(50) NULL,
@@ -38,7 +38,7 @@ def create_persons_table():
 
 
 def drop_persons_table():
-    mycursor.execute("DROP TABLE `mydatabase`.`perxlsx`;")
+    mycursor.execute("DROP TABLE `mydatabase`.`acme_hero_heroes2s`;")
     print("Table created successfully")
 
 
@@ -76,19 +76,19 @@ def create_evac_table():
 
 
 def clear_persons_table():
-    mycursor.execute('DELETE FROM `mydatabase`.`perxlsx`;')
-    mycursor.execute('ALTER TABLE `mydatabase`.`perxlsx` AUTO_INCREMENT = 1;')
+    mycursor.execute('DELETE FROM `mydatabase`.`acme_hero_heroes2s`;')
+    mycursor.execute('ALTER TABLE `mydatabase`.`acme_hero_heroes2s` AUTO_INCREMENT = 1;')
     print("Table clear successfully")
     mydb.commit()
 
 
 def count_persons_table():
-    result = mycursor.execute('SELECT COUNT(*) FROM `mydatabase`.`perxlsx`;')
+    result = mycursor.execute('SELECT COUNT(*) FROM `mydatabase`.`acme_hero_heroes2s`;')
     print(result)
 
 
 def save_persons(val):
-    sql = """INSERT INTO perxlsx
+    sql = """INSERT INTO acme_hero_heroes2s
         (surname, name, patronymic,
         date_of_birth, place_of_conscription, military_rank, military_unit,
         date_of_death, location, fate, is_valid)
