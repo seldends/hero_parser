@@ -20,7 +20,7 @@ mycursor = mydb.cursor()
 
 def create_persons_table():
     mycursor.execute(
-        """CREATE TABLE acme_hero_heroes2s
+        """CREATE TABLE IF NOT EXISTS acme_hero_heroes2s
         (   id INT AUTO_INCREMENT PRIMARY KEY,
             surname VARCHAR(50) NULL,
             name VARCHAR(50) NULL,
@@ -76,15 +76,14 @@ def create_evac_table():
 
 
 def clear_persons_table():
-    mycursor.execute('DELETE FROM `mydatabase`.`acme_hero_heroes2s`;')
-    mycursor.execute('ALTER TABLE `mydatabase`.`acme_hero_heroes2s` AUTO_INCREMENT = 1;')
+    sql_delete = """DELETE FROM `mydatabase`.`acme_hero_heroes2s`;
+    """
+    sql_alter = """ALTER TABLE `mydatabase`.`acme_hero_heroes2s` AUTO_INCREMENT = 1;
+    """
+    mycursor.execute(sql_delete)
+    mycursor.execute(sql_alter)
     print("Table clear successfully")
     mydb.commit()
-
-
-def count_persons_table():
-    result = mycursor.execute('SELECT COUNT(*) FROM `mydatabase`.`acme_hero_heroes2s`;')
-    print(result)
 
 
 def save_persons(val):
