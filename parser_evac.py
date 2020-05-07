@@ -1,15 +1,18 @@
 import pandas as pd
 import numpy as np
-from connect_mysql import save_evac, db_commit
+
+from test import time_test
+from evac_db import db_commit
+from evac_db import save_evac as save_table
+from evac_db import create_evac_table as create_table
+from evac_db import clear_evac_table as clear_table
+from evac_db import drop_evac_table as drop_table
+import datetime
+
+family_id_global = 0
 
 
-df = pd.read_excel('evac.xlsx')
-df = df.where((pd.notnull(df)), None)
-
-date_of_birth_pattern = r"\d{4}|\d{4}\s\(d{4}\)"
-
-
-def check(column, i):
+def check(column, i, df):
     data = df[column][i]
     if type(data) == np.int64:
         return int(data)
@@ -18,11 +21,15 @@ def check(column, i):
     return data
 
 
-def pars_evac(df):
+@time_test
+def pars(df):
     for i in df.index:
+        global family_id_global
+        family_id = None
+        family_id_temp = None
         name = None
         patronymic = None
-        gender = None
+        family_member = None
         date_of_birth = None
         before_evac_region = None
         before_evac_district = None
@@ -43,45 +50,76 @@ def pars_evac(df):
         search_list = None
         other_data = None
 
-        surname = df['фамилия'][i]
-        name = check('имя', i)
-        patronymic = check('отчество', i)
-        gender = check('пол', i)
-        date_of_birth = check('год рождения', i)
-        before_evac_region = check('область1', i)
-        before_evac_district = check('район1', i)
-        before_evac_city = check('город1', i)
-        nationality = check('национальность', i)
-        before_evac_place_of_work = check('предприятие', i)
-        before_evac_post = check('должность1', i)
-        evac_district = check('район2', i)
-        evac_city = check('город2', i)
-        evac_with_company = check('организация', i)
-        evac_place_of_work = check('место работы', i)
-        evac_post = check('должность2', i)
-        settled_adress = check('адрес', i)
-        search_archive = check('архив', i)
-        search_fond = check('фонд', i)
-        search_inventory = check('опись', i)
-        search_case = check('дело', i)
-        search_list = check('лист', i)
-        other_data = check('примечание', i)
+        family_id_temp = df['номер'][i]
+        if not family_id_temp and i > 0:
+            j = 1
+            while not family_id_temp:
+                family_id_temp = df['номер'][i-j]
+                j += 1
+        if family_id_global:
+            family_id = family_id_global + family_id_temp
+        else:
+            family_id = family_id_temp
+        try:
+            df['номер'][i+1]
+        except KeyError:
+            family_id_global = family_id_temp
 
-        # #print(surname, name)
+        surname = df['фамилия'][i]
+        name = check('имя', i, df)
+        patronymic = check('отчество', i, df)
+        family_member = check('отношение', i, df)
+        date_of_birth = check('год рождения', i, df)
+        before_evac_region = check('область1', i, df)
+        before_evac_district = check('район1', i, df)
+        before_evac_city = check('город1', i, df)
+        nationality = check('национальность', i, df)
+        before_evac_place_of_work = check('предприятие', i, df)
+        before_evac_post = check('должность1', i, df)
+        evac_district = check('район2', i, df)
+        evac_city = check('город2', i, df)
+        evac_with_company = check('организация', i, df)
+        evac_place_of_work = check('место работы', i, df)
+        evac_post = check('должность2', i, df)
+        settled_adress = check('адрес', i, df)
+        search_archive = check('архив', i, df)
+        search_fond = check('фонд', i, df)
+        search_inventory = check('опись', i, df)
+        search_case = check('дело', i, df)
+        search_list = check('лист', i, df)
+        other_data = check('примечание', i, df)
 
         val = (
-            surname, name, patronymic,
-            gender, date_of_birth, before_evac_region,
+            family_id, surname, name, patronymic,
+            family_member, date_of_birth, before_evac_region,
             before_evac_district, before_evac_city, nationality,
             before_evac_place_of_work, before_evac_post,
             evac_district, evac_city, evac_with_company,
             evac_place_of_work, evac_post, settled_adress,
             search_archive, search_fond, search_inventory,
             search_case, search_list, other_data
-            )
+        )
 
-        save_evac(val)
+        save_table(val)
 
 
-pars_evac(df)
+@time_test
+def open_xlsx(path_xlsx):
+    xlsx = pd.ExcelFile(path_xlsx)
+    for sheet in xlsx.sheet_names:
+        print(sheet)
+        df = xlsx.parse(sheet)
+        df = df.where((pd.notnull(df)), None)
+        pars(df)
+
+# def print_sql():
+
+
+path_xlsx = 'xlsx/evac2.xlsx'
+
+# drop_table()
+# create_table()
+clear_table()
+
+open_xlsx(path_xlsx)
 db_commit()

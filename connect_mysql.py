@@ -13,11 +13,6 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 
 
-# def create_db():
-#     mycursor.execute("CREATE DATABASE mydatabase")
-#     mydb.commit()
-
-
 def create_persons_table():
     mycursor.execute(
         """CREATE TABLE IF NOT EXISTS acme_hero_heroes2s
@@ -42,39 +37,6 @@ def drop_persons_table():
     print("Table created successfully")
 
 
-def create_evac_table():
-    mycursor.execute(
-        """CREATE TABLE evac
-        (   id INT AUTO_INCREMENT PRIMARY KEY,
-            surname VARCHAR(50) NULL,
-            name VARCHAR(50) NULL,
-            patronymic VARCHAR(50) NULL,
-            gender VARCHAR(1) NULL,
-            date_of_birth VARCHAR(50) NULL,
-            before_evac_region VARCHAR(255) NULL,
-            before_evac_district VARCHAR(255) NULL,
-            before_evac_city VARCHAR(255) NULL,
-            nationality VARCHAR(255) NULL,
-            before_evac_place_of_work VARCHAR(255) NULL,
-            before_evac_post VARCHAR(255) NULL,
-            evac_district VARCHAR(255) NULL,
-            evac_city VARCHAR(255) NULL,
-            evac_with_company VARCHAR(255) NULL,
-            evac_place_of_work VARCHAR(255) NULL,
-            evac_post VARCHAR(255) NULL,
-            settled_adress VARCHAR(255) NULL,
-            search_archive VARCHAR(255) NULL,
-            search_fond integer NULL,
-            search_inventory integer NULL,
-            search_case integer NULL,
-            search_list integer NULL,
-            other_data VARCHAR(255) NULL
-        )
-        """)
-
-    print("Table created successfully")
-
-
 def clear_persons_table():
     sql_delete = """DELETE FROM `mydatabase`.`acme_hero_heroes2s`;
     """
@@ -94,22 +56,6 @@ def save_persons(val):
         VALUES
         (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
-    mycursor.execute(sql, val)
-
-
-def save_evac(val):
-    sql = """INSERT INTO evac
-        (   surname, name, patronymic,
-            gender, date_of_birth, before_evac_region,
-            before_evac_district, before_evac_city, nationality,
-            before_evac_place_of_work, before_evac_post,
-            evac_district, evac_city, evac_with_company,
-            evac_place_of_work, evac_post, settled_adress,
-            search_archive, search_fond, search_inventory,
-            search_case, search_list, other_data)
-        VALUES
-        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
     mycursor.execute(sql, val)
 
 
