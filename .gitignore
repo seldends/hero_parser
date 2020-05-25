@@ -1,3 +1,4 @@
+# Selden
 .vscode/
 ОбщееБВГДЕЖЗ.xlsx
 ОбщееИНОПК.xlsx
@@ -10,8 +11,10 @@ parser_pg.py
 connect_pg.py
 xlsx/
 sql/
-
-
+sqldump/
+sqldump2/
+utils_db_pg.py
+evac_db_pg.py
 
 
 # Byte-compiled / optimized / DLL files

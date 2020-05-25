@@ -2,27 +2,42 @@ import pandas as pd
 import numpy as np
 
 from test import time_test
-from evac_db import db_commit
-from evac_db import save_evac as save_table
-from evac_db import create_evac_table as create_table
-from evac_db import clear_evac_table as clear_table
-from evac_db import drop_evac_table as drop_table
+from utils_db_mysql import db_commit, close_connection
+from utils_db_mysql import save_evac as save_table
+from utils_db_mysql import save_data_bunch
+from utils_db_mysql import create_table_evac as create_table
+from utils_db_mysql import clear_table
+from utils_db_mysql import drop_table
+from utils_db_mysql import save_query_to_file
+
 import datetime
 
+#! выбирать 2е число
 family_id_global = 0
+# 1й файл 19031 11769
+# 2й файл 54071	37997
+# 3й файл 55621	38780
+# 6й файл 59235	40316
 
 
 def check(column, i, df):
     data = df[column][i]
     if type(data) == np.int64:
         return int(data)
+    elif type(data) == float:
+        return str(data).replace(".0", "")
+    elif type(data) == str:
+        return data.strip()
     if data == '-':
         data = None
+
     return data
 
 
 @time_test
 def pars(df):
+    all_dict = []
+
     for i in df.index:
         global family_id_global
         family_id = None
@@ -42,7 +57,7 @@ def pars(df):
         evac_with_company = None
         evac_place_of_work = None
         evac_post = None
-        settled_adress = None
+        settled_address = None
         search_archive = None
         search_fond = None
         search_inventory = None
@@ -51,19 +66,11 @@ def pars(df):
         other_data = None
 
         family_id_temp = df['номер'][i]
-        if not family_id_temp and i > 0:
-            j = 1
-            while not family_id_temp:
-                family_id_temp = df['номер'][i-j]
-                j += 1
-        if family_id_global:
-            family_id = family_id_global + family_id_temp
-        else:
-            family_id = family_id_temp
-        try:
-            df['номер'][i+1]
-        except KeyError:
-            family_id_global = family_id_temp
+
+        if family_id_temp:
+            family_id_global += 1
+
+        family_id = family_id_global
 
         surname = df['фамилия'][i]
         name = check('имя', i, df)
@@ -80,8 +87,9 @@ def pars(df):
         evac_city = check('город2', i, df)
         evac_with_company = check('организация', i, df)
         evac_place_of_work = check('место работы', i, df)
+        # print(type(evac_place_of_work))
         evac_post = check('должность2', i, df)
-        settled_adress = check('адрес', i, df)
+        settled_address = check('адрес', i, df)
         search_archive = check('архив', i, df)
         search_fond = check('фонд', i, df)
         search_inventory = check('опись', i, df)
@@ -89,37 +97,66 @@ def pars(df):
         search_list = check('лист', i, df)
         other_data = check('примечание', i, df)
 
+        # val_test = [
+        #     surname, name, patronymic,
+        #     family_member, date_of_birth, before_evac_region,
+        #     before_evac_district, before_evac_city, nationality,
+        #     before_evac_place_of_work, before_evac_post,
+        #     evac_district, evac_city, evac_with_company,
+        #     evac_place_of_work, evac_post, settled_address,
+        #     search_archive, search_fond,
+        #     search_list, other_data
+        #     ]
+
+        # for i in val_test:
+        #     if i:
+        #         i = str(i).strip()
+
+        # dict_replace = [search_case, search_inventory]
+        # for j in dict_replace:
+        #     j = str(j).replace(".0", "")
+
         val = (
             family_id, surname, name, patronymic,
             family_member, date_of_birth, before_evac_region,
             before_evac_district, before_evac_city, nationality,
             before_evac_place_of_work, before_evac_post,
             evac_district, evac_city, evac_with_company,
-            evac_place_of_work, evac_post, settled_adress,
+            evac_place_of_work, evac_post, settled_address,
             search_archive, search_fond, search_inventory,
             search_case, search_list, other_data
         )
-
-        save_table(val)
+        all_dict.append(val)
+        #save_table(val)
+    # print(len(all_dict))
+    # print(all_dict)
+    save_data_bunch(all_dict)
 
 
 @time_test
 def open_xlsx(path_xlsx):
     xlsx = pd.ExcelFile(path_xlsx)
-    for sheet in xlsx.sheet_names:
+    test_list = xlsx.sheet_names
+    # test_list.pop(0)
+    # test_list.pop(0)
+    print(test_list)
+
+    for sheet in test_list:
         print(sheet)
         df = xlsx.parse(sheet)
         df = df.where((pd.notnull(df)), None)
         pars(df)
 
-# def print_sql():
+
+#path_xlsx = 'xlsx/evac3.xlsx'
+path_xlsx = 'xlsx/evac_all.xlsx'
 
 
-path_xlsx = 'xlsx/evac2.xlsx'
-
-# drop_table()
-# create_table()
-clear_table()
-
+table = "`mydatabase`.`evac`"
+drop_table(table)
+create_table()
+clear_table(table)
 open_xlsx(path_xlsx)
-db_commit()
+db_commit("Данные записаны")
+close_connection()
+#save_query_to_file()
