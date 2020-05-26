@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from test import time_test
+from utils import time_test
 from utils_db_mysql import db_commit, close_connection
 from utils_db_mysql import save_evac as save_table
 from utils_db_mysql import save_data_bunch
@@ -10,7 +10,6 @@ from utils_db_mysql import clear_table
 from utils_db_mysql import drop_table
 from utils_db_mysql import save_query_to_file
 
-import datetime
 
 #! выбирать 2е число
 family_id_global = 0
@@ -87,7 +86,6 @@ def pars(df):
         evac_city = check('город2', i, df)
         evac_with_company = check('организация', i, df)
         evac_place_of_work = check('место работы', i, df)
-        # print(type(evac_place_of_work))
         evac_post = check('должность2', i, df)
         settled_address = check('адрес', i, df)
         search_archive = check('архив', i, df)
@@ -96,25 +94,6 @@ def pars(df):
         search_case = check('дело', i, df)
         search_list = check('лист', i, df)
         other_data = check('примечание', i, df)
-
-        # val_test = [
-        #     surname, name, patronymic,
-        #     family_member, date_of_birth, before_evac_region,
-        #     before_evac_district, before_evac_city, nationality,
-        #     before_evac_place_of_work, before_evac_post,
-        #     evac_district, evac_city, evac_with_company,
-        #     evac_place_of_work, evac_post, settled_address,
-        #     search_archive, search_fond,
-        #     search_list, other_data
-        #     ]
-
-        # for i in val_test:
-        #     if i:
-        #         i = str(i).strip()
-
-        # dict_replace = [search_case, search_inventory]
-        # for j in dict_replace:
-        #     j = str(j).replace(".0", "")
 
         val = (
             family_id, surname, name, patronymic,
@@ -127,9 +106,6 @@ def pars(df):
             search_case, search_list, other_data
         )
         all_dict.append(val)
-        #save_table(val)
-    # print(len(all_dict))
-    # print(all_dict)
     save_data_bunch(all_dict)
 
 
@@ -148,15 +124,18 @@ def open_xlsx(path_xlsx):
         pars(df)
 
 
-#path_xlsx = 'xlsx/evac3.xlsx'
-path_xlsx = 'xlsx/evac_all.xlsx'
+def main():
+    path_xlsx = 'xlsx/evac_all.xlsx'
+    table = "`mydatabase`.`evac`"
+    # table = "evac"
+
+    create_table()              # Создание таблицы, если не существует
+    clear_table(table)          # Очистка таблицы и сброс id
+    open_xlsx(path_xlsx)        # Обработка всей книги
+    db_commit("Данные записаны")
+    close_connection()          # Закрытие соединения
+    #pass
 
 
-table = "`mydatabase`.`evac`"
-drop_table(table)
-create_table()
-clear_table(table)
-open_xlsx(path_xlsx)
-db_commit("Данные записаны")
-close_connection()
-#save_query_to_file()
+if __name__ == '__main__':
+    main()

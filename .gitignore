@@ -15,6 +15,7 @@ sqldump/
 sqldump2/
 utils_db_pg.py
 evac_db_pg.py
+test3.py
 
 
 # Byte-compiled / optimized / DLL files

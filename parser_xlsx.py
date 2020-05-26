@@ -1,8 +1,8 @@
 import pandas as pd
-from test import time_test
-from connect_mysql import save_persons, db_commit
-from connect_mysql import create_persons_table as create_table
-from connect_mysql import clear_persons_table as clear_table
+from utils import time_test
+from utils_db_mysql import save_persons, db_commit, close_connection
+from utils_db_mysql import create_table_persons as create_table
+from utils_db_mysql import clear_table
 import datetime
 
 
@@ -39,24 +39,42 @@ def pars(df):
             surname, name, patronymic,
             date_of_birth, place_of_conscription, military_rank, military_unit,
             date_of_death, location, fate, is_valid
-            )
+        )
         save_persons(val)
 
 
+# Открытие и запись всей книги
 @time_test
-def open_xlsx(path_xlsx):
+def open_book(path_xlsx):
     xlsx = pd.ExcelFile(path_xlsx)
     for sheet in xlsx.sheet_names:
         print(sheet)
         df = xlsx.parse(sheet)
         df = df.where((pd.notnull(df)), None)
         pars(df)
+    db_commit("Данные записаны")
 
 
-path_xlsx = 'xlsx/По буквам.xlsx'
+# Открытие и запись отдельного листа
+@time_test
+def open_list(path_xlsx, list_name):
+    xlsx = pd.ExcelFile(path_xlsx)
+    df = xlsx.parse(list_name)
+    df = df.where((pd.notnull(df)), None)
+    pars(df)
+    db_commit("Данные записаны")
 
-create_table()
-clear_table()
 
-open_xlsx(path_xlsx)
-db_commit()
+def main():
+    path_xlsx = 'xlsx/По буквам.xlsx'
+    table = "`mydatabase`.`acme_hero_heroes2s`"
+
+    create_table()              # Создание таблицы, если не существует
+    clear_table(table)          # Очистка таблицы и сброс id
+    open_book(path_xlsx)        # Обработка всей книги
+    close_connection()          # Закрытие соединения
+    #pass
+
+
+if __name__ == '__main__':
+    main()

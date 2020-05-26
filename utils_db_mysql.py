@@ -23,12 +23,12 @@ connection = mysql.connector.connect(
 cursor = connection.cursor()
 
 
-# Создание таблицы
+# Создание таблицы evac
 def create_table_evac():
     #! id для mysql id INT AUTO_INCREMENT PRIMARY KEY
     #! id для postgres id SERIAL
     cursor.execute(
-        """CREATE TABLE evac
+        """CREATE TABLE IF NOT EXISTS evac
         (   id INT AUTO_INCREMENT PRIMARY KEY,
             family_id integer NULL,
             surname VARCHAR(50) NULL,
@@ -59,9 +59,30 @@ def create_table_evac():
     db_commit("Таблица evac создана")
 
 
+# Создание таблицы persons
+def create_table_persons():
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS acme_hero_heroes2s
+        (   id INT AUTO_INCREMENT PRIMARY KEY,
+            surname VARCHAR(50) NULL,
+            name VARCHAR(50) NULL,
+            patronymic VARCHAR(50) NULL,
+            date_of_birth VARCHAR(50) NULL,
+            place_of_conscription VARCHAR(255) NULL,
+            military_rank VARCHAR(255) NULL,
+            military_unit VARCHAR(255) NULL,
+            date_of_death VARCHAR(50) NULL,
+            location VARCHAR(255) NULL,
+            fate VARCHAR(255) NULL,
+            is_valid boolean)
+        """)
+    db_commit("Таблица acme_hero_heroes2s создана")
+
+
 # Удаление таблицы
 def drop_table(table_name):
     cursor.execute("DROP TABLE " + table_name + ";")
+    print()
     db_commit("Таблица " + table_name + " удалена")
 
 
@@ -74,7 +95,7 @@ def clear_table(table_name):
     db_commit("Таблица " + table_name + " очищена")
 
 
-# Добавление данных в таблицу
+# Добавление данных в таблицу evac
 def save_evac(val):
     sql = """INSERT INTO evac
         (   family_id, surname, name, patronymic,
@@ -88,6 +109,17 @@ def save_evac(val):
         VALUES
         (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+    cursor.execute(sql, val)
+
+
+# Добавление данных в таблицу acme_hero_heroes2s
+def save_persons(val):
+    sql = """INSERT INTO acme_hero_heroes2s
+        (surname, name, patronymic,
+        date_of_birth, place_of_conscription, military_rank, military_unit,
+        date_of_death, location, fate, is_valid)
+        VALUES
+        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
     cursor.execute(sql, val)
 
 
@@ -169,13 +201,8 @@ def save_data_bunch(data):
         VALUES
         (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-    # data_str = str(data)
-    # data_str = data_str.replace('None', 'NULL')     # Замена None на Null
-    # data_str = data_str[1:]                         # Убирает [ в начале строки
-    # data_str = data_str[:-1]                        # Убирает ] в конце строки
-    # value = data_str
     cursor.executemany(query, data)
-    db_commit("В таблицу evac добавлено: " + str(len(data)) + "записей")
+    db_commit("В таблицу evac добавлено: " + str(len(data)) + " записей")
 
 
 # Запись данных в файл из таблицы
