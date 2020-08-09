@@ -3,7 +3,4 @@
 * parser_evac           - Парсер из xlsx таблицы эвакуированных 
 * parser_xlsx           - Парсер из xlsx (Для файлов от Натальи) 
 * parser_html           - Парсер из html с сохранением в mysql 
-06-06-06
-1232434
 test branch
-test2 branch
