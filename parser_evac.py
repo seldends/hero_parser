@@ -2,17 +2,22 @@ import pandas as pd
 import numpy as np
 
 from utils import time_test
-from utils_db_mysql import db_commit, close_connection
-from utils_db_mysql import save_evac as save_table
-from utils_db_mysql import save_data_bunch
-from utils_db_mysql import create_table_evac as create_table
-from utils_db_mysql import clear_table
-from utils_db_mysql import drop_table
-from utils_db_mysql import save_query_to_file
+# from utils_db_mysql import db_commit, close_connection
+# from utils_db_mysql import save_evac as save_table
+# from utils_db_mysql import save_data_bunch
+# from utils_db_mysql import create_table_evac as create_table
+# from utils_db_mysql import clear_table
+# from utils_db_mysql import drop_table
+# from utils_db_mysql import save_query_to_file
+
+from utils_mariadb import db_commit, close_connection, save_data_bunch
+from utils_mariadb import save_evac, clear_table
+from utils_mariadb import select_data_evac, save_data_to_sql_file
 
 
 #! выбирать 2е число
-family_id_global = 0
+family_id_global = 40316
+# family_id_global = 53964
 # 1й файл 19031 11769
 # 2й файл 54071	37997
 # 3й файл 55621	38780
@@ -105,8 +110,13 @@ def pars(df):
             search_archive, search_fond, search_inventory,
             search_case, search_list, other_data
         )
-        all_dict.append(val)
-    save_data_bunch(all_dict)
+        try:
+            save_evac(val)
+        except:
+            print(val)
+        #all_dict.append(val)
+
+    #save_data_bunch(all_dict)
 
 
 @time_test
@@ -125,14 +135,19 @@ def open_xlsx(path_xlsx):
 
 
 def main():
-    path_xlsx = 'xlsx/evac_all.xlsx'
-    table = "`mydatabase`.`evac`"
+    path_xlsx = 'xlsx/evac11.08.2020_part_2.xlsx'
+    table = "`hero_archiv`.`evac`"
     # table = "evac"
 
-    create_table()              # Создание таблицы, если не существует
+    # create_table()              # Создание таблицы, если не существует
     clear_table(table)          # Очистка таблицы и сброс id
     open_xlsx(path_xlsx)        # Обработка всей книги
     db_commit("Данные записаны")
+    
+
+    # Сохранение данных в файл
+    data = select_data_evac()
+    save_data_to_sql_file(data)
     close_connection()          # Закрытие соединения
     #pass
 

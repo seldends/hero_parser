@@ -16,6 +16,8 @@ sqldump2/
 utils_db_pg.py
 evac_db_pg.py
 test3.py
+Hero_local.session.sql
+test_sum.py
 
 
 # Byte-compiled / optimized / DLL files
