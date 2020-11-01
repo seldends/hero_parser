@@ -74,7 +74,7 @@ def select_data_evac():
 
 # Сохранение данных data = cur.fetchall() в sql с запросом
 def save_data_to_sql_file(data):
-    part = np.array_split(data, 6)
+    part = np.array_split(data, 2)
     print(len(part), type(part))
     for j in part:
         print(len(j), type(j))

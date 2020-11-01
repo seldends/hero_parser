@@ -16,7 +16,8 @@ from utils_mariadb import select_data_evac, save_data_to_sql_file
 
 
 #! выбирать 2е число
-family_id_global = 40316
+# family_id_global = 40316
+family_id_global = 69523
 # family_id_global = 53964
 # 1й файл 19031 11769
 # 2й файл 54071	37997
@@ -76,7 +77,7 @@ def pars(df):
 
         family_id = family_id_global
 
-        surname = df['фамилия'][i]
+        surname = str(df['фамилия'][i]).strip()
         name = check('имя', i, df)
         patronymic = check('отчество', i, df)
         family_member = check('отношение', i, df)
@@ -135,7 +136,7 @@ def open_xlsx(path_xlsx):
 
 
 def main():
-    path_xlsx = 'xlsx/evac11.08.2020_part_2.xlsx'
+    path_xlsx = 'xlsx/evac30.10.2020.xlsx'
     table = "`hero_archiv`.`evac`"
     # table = "evac"
 
