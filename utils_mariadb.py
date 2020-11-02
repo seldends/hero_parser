@@ -2,16 +2,26 @@ import mariadb
 import sys
 import numpy as np
 import re
+import yaml
 
-from settings import MARIADB_PASSWORD
+
+def get_config(name):
+    with open("configs/config.yml", "r", encoding='utf-8') as ymlfile:
+        try:
+            config = yaml.safe_load(ymlfile)
+            return config[name]
+        except yaml.YAMLError as exc:
+            print(exc)
 
 try:
+    name = 'hero_local'
+    config = get_config(name)
     conn = mariadb.connect(
-        user="admin",
-        password=MARIADB_PASSWORD,
-        host="localhost",
-        port=3306,
-        database="hero_archiv"
+        user=config['dbuser'],
+        password=config['dbpassword'],
+        host=config['host'],
+        port=config['port'],
+        database=config['dbname']
     )
 except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
@@ -20,7 +30,7 @@ except mariadb.Error as e:
 cursor = conn.cursor()
 
 def save_evac(val):
-    sql = """INSERT INTO evac
+    sql = """INSERT INTO hero_evac
         (   family_id, surname, name, patronymic,
             family_member, date_of_birth, before_evac_region,
             before_evac_district, before_evac_city, nationality,
@@ -36,7 +46,7 @@ def save_evac(val):
 
 
 def save_data_bunch(data):
-    query = """INSERT INTO evac
+    query = """INSERT INTO hero_evac
         (   family_id, surname, name, patronymic,
             family_member, date_of_birth, before_evac_region,
             before_evac_district, before_evac_city, nationality,
@@ -53,7 +63,7 @@ def save_data_bunch(data):
 
 
 # Выбор данных по условию
-def select_data_evac():
+def select_data_evac(table):
     # WHERE id > 54071
     # WHERE id < 18001
     # WHERE id < 18001 AND id > 54000
@@ -66,7 +76,7 @@ def select_data_evac():
             evac_district, evac_city, evac_with_company,
             evac_place_of_work, evac_post, settled_adress,
             search_archive, search_fond, search_inventory,
-            search_case, search_list, other_data FROM `hero_archiv`.`evac`;"""
+            search_case, search_list, other_data FROM """ + table + ";"
     cursor.execute(sql_print)
     rows = cursor.fetchall()
     return rows
@@ -113,13 +123,50 @@ def save_data_to_sql_file(data):
             i += 1
 
 # Очистка таблицы
+def create_table_evac(table_name):
+    sql_create = "CREATE TABLE " + table_name + '''(
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `created_at` timestamp NULL DEFAULT NULL,
+    `updated_at` timestamp NULL DEFAULT NULL,
+    `deleted_at` timestamp NULL DEFAULT NULL,
+    `family_id` int(11) DEFAULT NULL,
+    `surname` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `patronymic` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `family_member` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `date_of_birth` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `before_evac_region` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `before_evac_district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `before_evac_city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `nationality` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `before_evac_place_of_work` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `before_evac_post` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `evac_district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `evac_city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `evac_with_company` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `evac_place_of_work` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `evac_post` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `settled_adress` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `search_archive` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `search_fond` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `search_inventory` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `search_case` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `search_list` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `other_data` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    PRIMARY KEY (`id`)
+    )'''
+    cursor.execute(sql_create)
+    db_commit("Таблица " + table_name + "создана")
+
+
 def clear_table(table_name):
+    
     sql_delete = "DELETE FROM " + table_name + ";"
     sql_alter = "ALTER TABLE " + table_name + " AUTO_INCREMENT = 1;"
+    
     cursor.execute(sql_delete)
     cursor.execute(sql_alter)
     db_commit("Таблица " + table_name + " очищена")
-
 
 # Применение изменений
 def db_commit(message):

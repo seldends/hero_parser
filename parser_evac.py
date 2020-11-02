@@ -11,7 +11,7 @@ from utils import time_test
 # from utils_db_mysql import save_query_to_file
 
 from utils_mariadb import db_commit, close_connection, save_data_bunch
-from utils_mariadb import save_evac, clear_table
+from utils_mariadb import save_evac, clear_table, create_table_evac
 from utils_mariadb import select_data_evac, save_data_to_sql_file
 
 
@@ -111,10 +111,12 @@ def pars(df):
             search_archive, search_fond, search_inventory,
             search_case, search_list, other_data
         )
-        try:
-            save_evac(val)
-        except:
-            print(val)
+
+        save_evac(val)
+        # try:
+        #     save_evac(val)
+        # except:
+        #     print(val)
         #all_dict.append(val)
 
     #save_data_bunch(all_dict)
@@ -137,17 +139,16 @@ def open_xlsx(path_xlsx):
 
 def main():
     path_xlsx = 'xlsx/evac30.10.2020.xlsx'
-    table = "`hero_archiv`.`evac`"
-    # table = "evac"
+    table = "`hero_arhiv`.`hero_evac`"
 
-    # create_table()              # Создание таблицы, если не существует
+    # create_table_evac(table)              # Создание таблицы, если не существует
     clear_table(table)          # Очистка таблицы и сброс id
     open_xlsx(path_xlsx)        # Обработка всей книги
     db_commit("Данные записаны")
     
 
     # Сохранение данных в файл
-    data = select_data_evac()
+    data = select_data_evac(table)
     save_data_to_sql_file(data)
     close_connection()          # Закрытие соединения
     #pass

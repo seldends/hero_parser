@@ -9,6 +9,7 @@ test2.py
 parser_dbf.py
 parser_pg.py
 connect_pg.py
+config.yml
 xlsx/
 sql/
 sqldump/
