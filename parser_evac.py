@@ -2,13 +2,6 @@ import pandas as pd
 import numpy as np
 
 from utils import time_test
-# from utils_db_mysql import db_commit, close_connection
-# from utils_db_mysql import save_evac as save_table
-# from utils_db_mysql import save_data_bunch
-# from utils_db_mysql import create_table_evac as create_table
-# from utils_db_mysql import clear_table
-# from utils_db_mysql import drop_table
-# from utils_db_mysql import save_query_to_file
 
 from utils_mariadb import db_commit, close_connection, save_data_bunch
 from utils_mariadb import save_evac, clear_table, create_table_evac
@@ -16,8 +9,8 @@ from utils_mariadb import select_data_evac, save_data_to_sql_file
 
 
 #! выбирать 2е число
-# family_id_global = 40316
-family_id_global = 69523
+family_id_global = 80702
+count = 0
 # family_id_global = 53964
 # 1й файл 19031 11769
 # 2й файл 54071	37997
@@ -42,7 +35,6 @@ def check(column, i, df):
 @time_test
 def pars(df):
     all_dict = []
-
     for i in df.index:
         global family_id_global
         family_id = None
@@ -115,8 +107,8 @@ def pars(df):
         save_evac(val)
         # try:
         #     save_evac(val)
-        # except:
-        #     print(val)
+        # except Exception as e:
+        #     print(val, e)
         #all_dict.append(val)
 
     #save_data_bunch(all_dict)
@@ -131,19 +123,22 @@ def open_xlsx(path_xlsx):
     print(test_list)
 
     for sheet in test_list:
-        print(sheet)
         df = xlsx.parse(sheet)
         df = df.where((pd.notnull(df)), None)
+        print(f'Лист: {sheet} Количество элементов: {len(df.index)}')
+        global count
+        count += len(df.index)
         pars(df)
 
 
 def main():
-    path_xlsx = 'xlsx/evac30.10.2020.xlsx'
+    path_xlsx = 'xlsx/evac22.12.2020p1142.xlsx'
     table = "`hero_arhiv`.`hero_evac`"
 
     # create_table_evac(table)              # Создание таблицы, если не существует
     clear_table(table)          # Очистка таблицы и сброс id
     open_xlsx(path_xlsx)        # Обработка всей книги
+    print(count)
     db_commit("Данные записаны")
     
 

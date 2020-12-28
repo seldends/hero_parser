@@ -42,7 +42,10 @@ def save_evac(val):
         VALUES
         (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-    cursor.execute(sql, val)
+    try:
+        cursor.execute(sql, val)
+    except Exception as e:
+        print(val, e)
 
 
 def save_data_bunch(data):
