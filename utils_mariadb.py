@@ -30,7 +30,7 @@ except mariadb.Error as e:
 cursor = conn.cursor()
 
 def save_evac(val):
-    sql = """INSERT INTO hero_evac
+    sql = """INSERT INTO hero_evac2
         (   family_id, surname, name, patronymic,
             family_member, date_of_birth, before_evac_region,
             before_evac_district, before_evac_city, nationality,

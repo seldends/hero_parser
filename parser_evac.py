@@ -9,7 +9,8 @@ from utils_mariadb import select_data_evac, save_data_to_sql_file
 
 
 #! выбирать 2е число
-family_id_global = 80702
+# family_id_global = 80702
+family_id_global = 185529
 count = 0
 # family_id_global = 53964
 # 1й файл 19031 11769
@@ -133,7 +134,8 @@ def open_xlsx(path_xlsx):
 
 def main():
     path_xlsx = 'xlsx/evac22.12.2020p1142.xlsx'
-    table = "`hero_arhiv`.`hero_evac`"
+    # path_xlsx = 'xlsx/evac24.12.2020p1000.xlsx'
+    table = "`hero_arhiv`.`hero_evac2`"
 
     # create_table_evac(table)              # Создание таблицы, если не существует
     clear_table(table)          # Очистка таблицы и сброс id
@@ -143,8 +145,8 @@ def main():
     
 
     # Сохранение данных в файл
-    data = select_data_evac(table)
-    save_data_to_sql_file(data)
+    # data = select_data_evac(table)
+    # save_data_to_sql_file(data)
     close_connection()          # Закрытие соединения
     #pass
 
